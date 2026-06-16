@@ -12,6 +12,7 @@ npm test
 
 ```js
 import { getValidEmails, normalizeEmail } from './src/index.js';
+import { login } from './src/auth.js';
 
 const users = [
   { email: 'Alice@Example.com' },
@@ -21,11 +22,35 @@ const users = [
 
 getValidEmails(users); // ['Alice@Example.com', 'bob@example.com']
 normalizeEmail('  Alice@Example.com  '); // 'alice@example.com'
+
+login('user@example.com', 'secret'); // { success: true }
+login('invalid', 'secret');            // { success: false, error: 'INVALID_EMAIL' }
 ```
 
 자세한 검증 규칙은 [docs/validator.md](docs/validator.md)를 참고하세요.
 
 ## 릴리스 노트
+
+### v1.1.0
+
+**인증 모듈과 Cursor 훅 기반 셸 명령 감사·차단 정책을 추가한 릴리스입니다.**
+
+#### ✨ 기능
+
+- **로그인 검증 (`auth.js`)** — `validator.js`의 `isValidEmail`을 직접 사용하는 `login()` 제공
+  - 유효하지 않은 이메일 → `INVALID_EMAIL`
+  - 빈 비밀번호 → `INVALID_PASSWORD`
+- **Cursor 훅 (`.cursor/hooks/`)**
+  - `audit.mjs` — 파일 편집·셸 실행 이벤트를 감사 로그에 기록
+  - `block-rm.mjs` — `rm -rf` 패턴 셸 명령 차단 (`failClosed: true`)
+
+#### 🧹 기타
+
+- `email.js` 함수에 한국어 JSDoc 보강
+- Windows 환경 호환을 위해 감사 훅을 bash(`audit.sh`)에서 Node(`audit.mjs`)로 전환
+- PR 점검용 Cursor 슬래시 명령 `prep-pr` 유지
+
+---
 
 ### v1.0.0
 
@@ -45,4 +70,3 @@ normalizeEmail('  Alice@Example.com  '); // 'alice@example.com'
 
 - 이메일 검증 모듈 사용 가이드 문서 추가 (`docs/validator.md`)
 - Cursor 코딩 스타일 규칙 추가 (`.cursor/rules/coding-style.mdc`)
-- PR 점검용 Cursor 슬래시 명령 `prep-pr` 추가
